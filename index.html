@@ -1,40 +1,106 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Date Countdown</title>
     <style>
-        #countdown {
-            font-size: 24px;
-            font-weight: bold;
+        body {
+            background-color: #000;
+            color: #fff;
+            font-family: 'Helvetica', sans-serif;
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        #dateInputContainer,
+        #titleInputContainer {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        input {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+        }
+
+        #startButton {
+            margin-top: 10px;
+            padding: 10px;
+            font-size: 16px;
+            background-color: #4CAF50;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        #countdown {
+            font-size: 36px;
+            font-weight: bold;
             margin-top: 20px;
         }
     </style>
 </head>
+
 <body>
 
     <h1>Date Countdown</h1>
 
-    <label for="dateInput">Enter date (yyyy-mm-dd): </label>
-    <input type="date" id="dateInput">
-    <button onclick="startCountdown()">Start Countdown</button>
+    <div id="titleInputContainer">
+        <label for="titleInput">Enter title: </label>
+        <input type="text" id="titleInput">
+    </div>
+
+    <div id="dateInputContainer">
+        <label for="dateInput">Enter date (yyyy-mm-dd): </label>
+        <input type="date" id="dateInput">
+        <button id="startButton" onclick="startCountdown()">Start Countdown</button>
+    </div>
 
     <div id="countdown"></div>
 
     <script>
-        // Function to extract date from the URL parameter
         function getDateFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
             return urlParams.get('date');
         }
 
-        // Function to calculate and display the countdown
-        function displayCountdown(targetDate) {
+        function getTitleFromURL() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('title');
+        }
+
+        function displayCountdown(targetDate, title) {
+            const titleElement = document.querySelector('h1');
             const countdownElement = document.getElementById('countdown');
+            const dateInputContainer = document.getElementById('dateInputContainer');
+            const titleInputContainer = document.getElementById('titleInputContainer');
+
+            titleElement.style.display = 'none';
+            dateInputContainer.style.display = 'none';
+            titleInputContainer.style.display = 'none';
+
+            if (title) {
+                titleElement.style.display = 'block';
+                titleElement.innerHTML = title;
+            }
+
             const targetDateTime = new Date(targetDate + 'T00:00:00');
-            
+
             setInterval(() => {
                 const currentDate = new Date();
                 const differenceInMilliseconds = targetDateTime - currentDate;
@@ -44,30 +110,37 @@
                 const minutes = Math.floor((differenceInMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((differenceInMilliseconds % (1000 * 60)) / 1000);
 
-                countdownElement.innerHTML = `Countdown: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+                countdownElement.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
             }, 1000);
+
+            history.pushState(null, null, `?date=${targetDate}&title=${title}`);
         }
 
-        // Function to start the countdown
         function startCountdown() {
             const dateInput = document.getElementById('dateInput');
+            const titleInput = document.getElementById('titleInput');
             const selectedDate = dateInput.value;
+            const selectedTitle = titleInput.value;
 
             if (selectedDate) {
-                displayCountdown(selectedDate);
+                displayCountdown(selectedDate, selectedTitle);
             } else {
                 alert('Please enter a valid date.');
             }
         }
 
-        // Call the displayCountdown function when the page loads
         window.onload = function () {
             const targetDate = getDateFromURL();
+            const title = getTitleFromURL();
+
             if (targetDate) {
-                displayCountdown(targetDate);
+                displayCountdown(targetDate, title);
+            } else {
+                document.querySelector('h1').style.display = 'block';
             }
         };
     </script>
 
 </body>
+
 </html>
