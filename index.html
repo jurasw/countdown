@@ -17,41 +17,56 @@
 
     <h1>Date Countdown</h1>
 
+    <label for="dateInput">Enter date (yyyy-mm-dd): </label>
+    <input type="date" id="dateInput">
+    <button onclick="startCountdown()">Start Countdown</button>
+
     <div id="countdown"></div>
 
     <script>
         // Function to extract date from the URL parameter
         function getDateFromURL() {
             const urlParams = new URLSearchParams(window.location.search);
-            const dateParam = urlParams.get('date');
-            return dateParam ? dateParam : null;
+            return urlParams.get('date');
         }
 
         // Function to calculate and display the countdown
-        function displayCountdown() {
+        function displayCountdown(targetDate) {
             const countdownElement = document.getElementById('countdown');
-            const targetDate = getDateFromURL();
+            const targetDateTime = new Date(targetDate + 'T00:00:00');
+            
+            setInterval(() => {
+                const currentDate = new Date();
+                const differenceInMilliseconds = targetDateTime - currentDate;
 
-            if (targetDate) {
-                const targetDateTime = new Date(targetDate + 'T00:00:00');
-                setInterval(() => {
-                    const currentDate = new Date();
-                    const differenceInMilliseconds = targetDateTime - currentDate;
+                const days = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((differenceInMilliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((differenceInMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((differenceInMilliseconds % (1000 * 60)) / 1000);
 
-                    const days = Math.floor(differenceInMilliseconds / (1000 * 60 * 60 * 24));
-                    const hours = Math.floor((differenceInMilliseconds % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                    const minutes = Math.floor((differenceInMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
-                    const seconds = Math.floor((differenceInMilliseconds % (1000 * 60)) / 1000);
+                countdownElement.innerHTML = `Countdown: ${days}d ${hours}h ${minutes}m ${seconds}s`;
+            }, 1000);
+        }
 
-                    countdownElement.innerHTML = `Countdown: ${days}d ${hours}h ${minutes}m ${seconds}s`;
-                }, 1000);
+        // Function to start the countdown
+        function startCountdown() {
+            const dateInput = document.getElementById('dateInput');
+            const selectedDate = dateInput.value;
+
+            if (selectedDate) {
+                displayCountdown(selectedDate);
             } else {
-                countdownElement.innerHTML = 'Invalid date format in the URL parameter.';
+                alert('Please enter a valid date.');
             }
         }
 
         // Call the displayCountdown function when the page loads
-        window.onload = displayCountdown;
+        window.onload = function () {
+            const targetDate = getDateFromURL();
+            if (targetDate) {
+                displayCountdown(targetDate);
+            }
+        };
     </script>
 
 </body>
